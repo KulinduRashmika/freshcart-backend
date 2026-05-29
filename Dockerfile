@@ -1,5 +1,5 @@
-# Use Java 17
-FROM openjdk:17-jdk-slim
+# Use Eclipse Temurin (official OpenJDK distribution)
+FROM eclipse-temurin:17-jdk-alpine
 
 # Set working directory
 WORKDIR /app
