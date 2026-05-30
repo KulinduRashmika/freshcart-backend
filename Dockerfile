@@ -1,27 +1,16 @@
-# Use Eclipse Temurin (official OpenJDK distribution)
-FROM eclipse-temurin:17-jdk-alpine
-
-# Set working directory
+# Build stage
+#
+FROM maven:3.8.3-openjdk-17 AS build
 WORKDIR /app
-
-# Copy maven wrapper and pom.xml
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
-
-# Make mvnw executable
-RUN chmod +x mvnw
-
-# Download dependencies
-RUN ./mvnw dependency:go-offline -B
-
-# Copy source code
+COPY pom.xml .
 COPY src ./src
+RUN mvn clean install
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Expose port
+# Package stage
+#
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=build /app/target/familyhub-0.0.1-SNAPSHOT.jar demo.jar
+# ENV PORT=8080
 EXPOSE 8080
-
-# Run the application
-CMD ["java", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "demo.jar"]
